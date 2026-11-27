@@ -58,4 +58,4 @@ No browser is needed: the tests use Playwright's `request` fixture.
 
 ## CI
 
-`.github/workflows/api-tests.yml` runs on every pull request, on `master` and nightly, since the APIs can change without a commit here. It type checks, runs the contract self-checks, checks both APIs are up (so an outage is not mistaken for a failing test), runs the suite, publishes the results as a check with [dorny/test-reporter](https://github.com/dorny/test-reporter) and keeps the HTML report as an artifact. Both APIs are shared public services, so CI retries a failed test once and runs two workers to keep the load low.
+`.github/workflows/api-tests.yml` runs on every pull request, on `master` and nightly, since the APIs can change without a commit here. It type checks, runs the contract self-checks, checks both APIs are up (so an outage is not mistaken for a failing test), runs the suite, publishes the results to the run summary with [dorny/test-reporter](https://github.com/dorny/test-reporter) and keeps the HTML report as an artifact. Both APIs are shared public services, so CI retries a failed test once and runs two workers to keep the load low.
