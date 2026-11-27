@@ -1,0 +1,70 @@
+name: API tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  # The APIs change without any commit here, so run nightly too.
+  schedule:
+    - cron: '23 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  checks: write # test-reporter publishes the results as a check run
+
+concurrency:
+  group: api-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: API tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      # No network: if these fail, the schemas are broken, not the APIs.
+      - name: Contract self-checks
+        run: npx playwright test --project=contracts --reporter=list
+
+      # Tell an outage apart from a failing test before running the suite.
+      - name: Check the APIs are up
+        run: |
+          curl -fsS -o /dev/null -w "restful-booker %{http_code}\n" https://restful-booker.herokuapp.com/ping
+          curl -fsS -o /dev/null -w "dummyjson %{http_code}\n" https://dummyjson.com/test
+
+      # The whole suite, contracts included, so the published results list every test.
+      - name: Run API tests
+        run: npx playwright test
+
+      - name: Publish results
+        if: ${{ !cancelled() }}
+        uses: dorny/test-reporter@v2
+        with:
+          name: API test results
+          path: test-results/junit.xml
+          reporter: java-junit
+
+      - name: Upload report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14

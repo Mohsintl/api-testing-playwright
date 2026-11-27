@@ -1,0 +1,23 @@
+{
+  "name": "api-testing-playwright",
+  "version": "1.0.0",
+  "description": "API test suite in Playwright + TypeScript: CRUD lifecycle, auth, contract checks with zod, and documented defects in two public APIs",
+  "private": true,
+  "license": "MIT",
+  "type": "commonjs",
+  "scripts": {
+    "test": "playwright test",
+    "test:smoke": "playwright test --grep @smoke",
+    "test:booker": "playwright test --project=restful-booker",
+    "test:dummyjson": "playwright test --project=dummyjson",
+    "test:contracts": "playwright test --project=contracts",
+    "typecheck": "tsc --noEmit",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.1",
+    "@types/node": "^26.6.11",
+    "typescript": "^7.0.2",
+    "zod": "^4.6.7"
+  }
+}
